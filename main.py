@@ -4,7 +4,7 @@ from fastapi import FastAPI
 
 app = FastAPI() # criando uma instância da classe FastAPI
 
-@app.get("/extrai_dados_vendas/{id_cliente_servico}") 
+@app.get("/extrai_dados_vendas") 
 def verifica_apto_mudanca():
     df_vendas = consulta_novos_clientes()
 

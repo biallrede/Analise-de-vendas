@@ -34,7 +34,7 @@ def consulta_novos_clientes():
                 left join cidade end3 on end3.id_cidade = end2.id_cidade
                 left join estado end4 on end4.id_estado = end3.id_estado
                 where a.data_habilitacao isnull
-                and a.data_venda::date = CURRENT_DATE - interval '1 day' 
+                and a.data_venda::date = CURRENT_DATE - interval '7 day' 
                 and a.origem = 'novo'
                 group by a.id_cliente_servico,
                 b.nome_razaosocial,
