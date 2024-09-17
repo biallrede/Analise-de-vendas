@@ -16,14 +16,14 @@ def consulta_novos_clientes():
                 end3.nome as cidade,
                 end4.nome as estado,
                 f.name as vendedor,
-                g.aceito as contrato_aceito ,
+                CASE WHEN g.aceito = true then 1 else 0 end as contrato_aceito,
                 g.data_aceito::date
                 from cliente_servico a
                 left join cliente b on b.id_cliente = a.id_cliente
                 left join origem_cliente c on c.id_origem_cliente = b.id_origem_cliente
                 left join servico d on d.id_servico = a.id_servico 
                 left join prospecto e on e.id_cliente = b.id_cliente
-                left join users f on f.id  = e.id_usuario
+                left join users f on f.id  = a.id_usuario_vendedor
                 left join cliente_servico_contrato g on g.id_cliente_servico = a.id_cliente_servico 
                 left join (select id_cliente_servico, 
                     id_endereco_numero
@@ -33,9 +33,12 @@ def consulta_novos_clientes():
                 left join endereco_numero end2 on end2.id_endereco_numero = end1.id_endereco_numero
                 left join cidade end3 on end3.id_cidade = end2.id_cidade
                 left join estado end4 on end4.id_estado = end3.id_estado
+				left join servico_status h on h.id_servico_status = a.id_servico_status
                 where a.data_habilitacao isnull
-                and a.data_venda::date = CURRENT_DATE - interval '7 day' 
+                and a.data_venda::date between (CURRENT_DATE - interval '7 day') and (CURRENT_DATE - interval '1 day') 
                 and a.origem = 'novo'
+				and h.descricao <> 'Cancelado'
+                --and a.id_cliente_servico = 1066109
                 group by a.id_cliente_servico,
                 b.nome_razaosocial,
 				b.cpf_cnpj,
@@ -78,7 +81,7 @@ def consulta_cliente_ja_foi_da_base(cpf_compara):
 def consulta_fotos_cadastro_cliente(id_cliente):
     conn = credenciais_banco()
     query = '''
-                select link from cliente_arquivo_upload a
+                select b.link, a.id_cliente from cliente_arquivo_upload a
                 left join arquivo_upload b on b.id_arquivo_upload = a.id_arquivo_upload
                 where a.id_cliente = {id_cliente}
                 '''.format(id_cliente = id_cliente)
