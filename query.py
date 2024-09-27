@@ -4,45 +4,58 @@ from credentials import credenciais_banco
 def consulta_novos_clientes():
     conn = credenciais_banco()
     query = '''
-                select 
+            SELECT
                 a.id_cliente_servico,
-                b.nome_razaosocial as nome_cliente,
+                b.nome_razaosocial AS nome_cliente,
                 b.cpf_cnpj,
-				b.id_cliente,
+                b.id_cliente,
                 a.data_venda::date,
-                c.descricao as origem_cliente,
-                d.descricao as plano,
-                d.valor,
-                end3.nome as cidade,
-                end4.nome as estado,
-                f.name as vendedor,
-                CASE WHEN g.aceito = true then 1 else 0 end as contrato_aceito,
-                g.data_aceito::date
-                from cliente_servico a
-                left join cliente b on b.id_cliente = a.id_cliente
-                left join origem_cliente c on c.id_origem_cliente = b.id_origem_cliente
-                left join servico d on d.id_servico = a.id_servico 
-                left join prospecto e on e.id_cliente = b.id_cliente
-                left join users f on f.id  = a.id_usuario_vendedor
-                left join cliente_servico_contrato g on g.id_cliente_servico = a.id_cliente_servico 
-                left join (select id_cliente_servico, 
+                CASE WHEN a.validade = 12 THEN 1 ELSE 0 END AS fidelizado,
+                c.descricao AS origem_cliente,
+                d.descricao AS plano,
+                d.valor AS valor_plano,
+                end3.nome AS cidade,
+                end4.nome AS estado,
+                f.name AS vendedor,
+                CASE WHEN g.aceito = TRUE THEN 1 ELSE 0 END AS contrato_aceito,
+                g.data_aceito::date,
+				j.descricao,
+                CASE 
+                    WHEN g.aceito = TRUE 
+                    THEN (g.data_aceito::date - a.data_venda::date) 
+                    ELSE -1 
+                END AS dias_decorridos_assinatura,
+                CASE 
+                    WHEN j.descricao IS NOT NULL then 1 else 0 end as promocao_plano
+            FROM 
+                cliente_servico a
+            LEFT JOIN cliente b ON b.id_cliente = a.id_cliente
+            LEFT JOIN origem_cliente c ON c.id_origem_cliente = b.id_origem_cliente
+            LEFT JOIN servico d ON d.id_servico = a.id_servico
+            LEFT JOIN prospecto e ON e.id_cliente = b.id_cliente
+            LEFT JOIN users f ON f.id = a.id_usuario_vendedor
+            LEFT JOIN cliente_servico_contrato g ON g.id_cliente_servico = a.id_cliente_servico
+            LEFT JOIN (
+                SELECT id_cliente_servico,
                     id_endereco_numero
-                    from cliente_servico_endereco
-                    where tipo = 'instalacao'
-                ) end1 on end1.id_cliente_servico = a.id_cliente_servico
-                left join endereco_numero end2 on end2.id_endereco_numero = end1.id_endereco_numero
-                left join cidade end3 on end3.id_cidade = end2.id_cidade
-                left join estado end4 on end4.id_estado = end3.id_estado
-				left join servico_status h on h.id_servico_status = a.id_servico_status
-                where a.data_habilitacao isnull
-                and a.data_venda::date between (CURRENT_DATE - interval '7 day') and (CURRENT_DATE - interval '1 day') 
-                and a.origem = 'novo'
-				and h.descricao <> 'Cancelado'
-                --and a.id_cliente_servico = 1066109
-                group by a.id_cliente_servico,
+                FROM cliente_servico_endereco
+                WHERE tipo = 'instalacao'
+            ) end1 ON end1.id_cliente_servico = a.id_cliente_servico
+            LEFT JOIN endereco_numero end2 ON end2.id_endereco_numero = end1.id_endereco_numero
+            LEFT JOIN cidade end3 ON end3.id_cidade = end2.id_cidade
+            LEFT JOIN estado end4 ON end4.id_estado = end3.id_estado
+            LEFT JOIN servico_status h ON h.id_servico_status = a.id_servico_status
+            LEFT JOIN cliente_servico_promocao i ON i.id_cliente_servico = a.id_cliente_servico
+            LEFT JOIN promocao j ON j.id_promocao = i.id_promocao
+            WHERE a.data_habilitacao IS NULL
+            AND a.data_venda::date BETWEEN (CURRENT_DATE - INTERVAL '7 day') AND (CURRENT_DATE - INTERVAL '1 day')
+            AND a.origem = 'novo'
+            AND h.descricao <> 'Cancelado'
+            GROUP BY
+                a.id_cliente_servico,
                 b.nome_razaosocial,
-				b.cpf_cnpj,
-				b.id_cliente,
+                b.cpf_cnpj,
+                b.id_cliente,
                 a.data_venda::date,
                 c.descricao,
                 d.descricao,
@@ -51,7 +64,8 @@ def consulta_novos_clientes():
                 end4.nome,
                 f.name,
                 g.aceito,
-                g.data_aceito::date
+                g.data_aceito::date,
+                j.descricao
                 '''
     
     df = pd.read_sql(query,conn)
@@ -90,3 +104,4 @@ def consulta_fotos_cadastro_cliente(id_cliente):
     conn.close()
 
     return df
+

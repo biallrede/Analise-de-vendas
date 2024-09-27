@@ -7,3 +7,4 @@ multipart
 apscheduler
 schedule
 sqlalchemy
+openpyxl

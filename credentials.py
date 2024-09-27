@@ -13,20 +13,8 @@ def credenciais_banco():
     
     return conn
 
-# def credenciais_banco_alldata():
-# # Configuração da conexão com o banco de dados
-#     conn = pyodbc.connect(
-#         'DRIVER={ODBC Driver 18 for SQL Server};'
-#         'Server=187.121.151.19;' 
-#         'Database=DB_BASE;'
-#         'UID=user_allnexus;'
-#         'PWD=uKl041xn8HIw0WF;'
-#         'TrustServerCertificate=yes;'
-#     )
-#     return conn
-
 def credenciais_banco_alldata():
-# Configuração da conexão com o banco de dados
+# Configuração da conexão com o banco de dados para rodar no servidor
     server = '187.121.151.19'
     database = 'DB_ALLNEXUS'
     username = 'user_allnexus'
@@ -34,25 +22,16 @@ def credenciais_banco_alldata():
 
     connection_string = f'mssql+pyodbc://{username}:{password}@{server}/{database}?driver=ODBC+Driver+18+for+SQL+Server'
     engine = create_engine(connection_string,fast_executemany=True)
-    # conn = pyodbc.connect(
-    #     'DRIVER={ODBC Driver 17 for SQL Server};'
-    #     'Server=187.121.151.19;' 
-    #     'Database=DB_ALLNEXUS;'
-    #     'UID=user_allnexus;'
-    #     'PWD=uKl041xn8HIw0WF;'
-    #     'TrustServerCertificate=yes;'
-    # )
     return engine
 
 # def credenciais_banco_alldata():
-# # Configuração da conexão com o banco de dados
-#     params = urllib.parse.quote_plus(
-#         'DRIVER={ODBC Driver 17 for SQL Server};'
-#         'Server=187.121.151.19;' 
-#         'Database=DB_ALLNEXUS;'
-#         'UID=user_allnexus;'
-#         'PWD=uKl041xn8HIw0WF;'
-#         'TrustServerCertificate=yes;'
-#     )
-#     engine = create_engine(f"mssql+pyodbc:///?odbc_connect={params}")
+# # Configuração da conexão com o banco de dados para rodar local
+#     server = '187.121.151.19'
+#     database = 'DB_ALLNEXUS'
+#     username = 'user_allnexus'
+#     password = 'uKl041xn8HIw0WF'
+
+#     connection_string = f'mssql+pyodbc://{username}:{password}@{server}/{database}?driver=ODBC+Driver+17+for+SQL+Server'
+#     engine = create_engine(connection_string,fast_executemany=True)
 #     return engine
+
