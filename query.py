@@ -10,6 +10,7 @@ def consulta_novos_clientes():
                 b.cpf_cnpj,
                 b.id_cliente,
                 a.data_venda::date,
+                a.data_habilitacao::date,
                 CASE WHEN a.validade = 12 THEN 1 ELSE 0 END AS fidelizado,
                 c.descricao AS origem_cliente,
                 d.descricao AS plano,

@@ -10,7 +10,7 @@ import re
 def verifica_apto_mudanca():
     conn = credenciais_banco_alldata()
     df_vendas = consulta_novos_clientes()
-
+    valor = 0
     # Adicionando novas colunas ao DataFrame antes do loop
     df_vendas['ja_foi_cliente'] = ''
     df_vendas['motivo_cancelamento'] = ''
@@ -75,6 +75,7 @@ def verifica_apto_mudanca():
     df_vendas['cpf_cnpj'] = df_vendas['cpf_cnpj'].astype(str)
     df_vendas['id_cliente'] = df_vendas['id_cliente'].astype(int)
     df_vendas['data_venda'] = pd.to_datetime(df_vendas['data_venda'])
+    df_vendas['data_habilitacao'] = pd.to_datetime(df_vendas['data_habilitacao'])
     df_vendas['origem_cliente'] = df_vendas['origem_cliente'].astype(str)
     df_vendas['plano'] = df_vendas['plano'].astype(str)
     df_vendas['valor_plano'] = df_vendas['valor_plano'].astype(float)
